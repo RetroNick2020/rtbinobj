@@ -3,7 +3,7 @@ A Turbo Pascal BINOBJ clone for Windows/Linux - Includes GUI and console version
 
 In addtion to supporting the same output format (byte exact) you can also now add 
 
-<public size name> to access size of linked file at runtime. Examples to follow.
+"public size name" to access size of linked file at runtime. Examples to follow.
 
 
 rtbinobjgui.exe is the GUI version - just click and select your files
