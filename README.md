@@ -3,7 +3,7 @@
 
 ![](https://github.com/retronick2020/rtbinobj-wiki/rtbinobjgui.png)
 
-![](https://github.com/retronick2020/rtbinobj/wiki/rtbinobj.png) 
+![](https://github.com/retronick2020/rtbinobj-wiki/rtbinobj.png) 
 
 A Turbo Pascal BINOBJ clone for Windows/Linux - Includes GUI and console versions
 
