@@ -8,7 +8,7 @@ to access size of linked file at runtime. Examples to follow.
 
 rtbinobjgui.exe is the GUI version - just click and select your files
 
-rtbinobj.exe is the console version you in the command line (cmd.exe)
+rtbinobj.exe is the console version you run in the command line (cmd.exe)
 
 rtbinobj infile outfile public_name
 
