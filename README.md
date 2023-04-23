@@ -20,4 +20,4 @@ procedure MYIMAGE; external;
 
 {$L image.obj}
 
-![](https://github.com/retronick2020/rtbinobj/wiki/rtbinobj.png)  
+![](https://github.com/retronick2020/rtbinobj-wiki/rtbinobj.png)  
