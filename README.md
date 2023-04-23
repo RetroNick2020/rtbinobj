@@ -6,7 +6,7 @@ In addtion to supporting the same output format (byte exact) you can also now ad
 "public size name" to access size of linked file at runtime. Examples to follow.
 
 
-rtbinobjgui.exe is the GUI version - just click and select your files
+rtbinobjgui.exe is the GUI version - just click and select your file, Save As to convert to OBJ.
 
 rtbinobj.exe is the console version you run in the command line (cmd.exe)
 
