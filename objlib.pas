@@ -29,6 +29,7 @@ procedure Write_ModEnd(var F : File);
 
 procedure Write_PubDefRecords(var F : File; BaseGroupIndex: byte; BaseSegmentIndex: byte;var rdata;rcount : word);
 Function CreateTPObj(infile,outfile,publicname : string) : word;
+Function CreateTPObj(infile,outfile,publicname,publicsizename : string) : word;
 
 implementation
 
@@ -357,9 +358,11 @@ var
  F : File;
 begin
  Assign(F,filename);
+{$I-}
  Reset(F,1);
- result:=FileSize(F);
+ result:=WORD(FileSize(F));
  close(F);
+{$I+}
 end;
 
 Procedure Write_FileContents(var F : File;filename : string;segIdx: byte; dataOffset: word);
@@ -370,7 +373,7 @@ var
 begin
  Assign(FC,filename);
  Reset(FC,1);
- size:=FileSize(FC);
+ size:=WORD(FileSize(FC));
  GetMem(data,size);
  if data<>NIL then
  begin
@@ -381,13 +384,37 @@ begin
  close(FC);
 end;
 
+Procedure Write_FileContentsAndSize(var F : File;filename : string;segIdx: byte; dataOffset: word);
+var
+ size : word;
+ FC   : File;
+ data : PByte;
+begin
+ Assign(FC,filename);
+ Reset(FC,1);
+ size:=WORD(FileSize(FC));
+ GetMem(data,size+2);
+ if data<>NIL then
+ begin
+   Blockread(FC,data^,size);
+   (data + size)^:=LO(size);
+   (data + size+1)^:=HI(size);
+
+   Write_SegmentData(F,SegIdx,dataOffset,data,size+2);
+   FreeMem(data,size+2);
+ end;
+ close(FC);
+end;
+
+
+
 // create Turbo Pascal Compatile BINOBJ output exactly to the byte level
 Function CreateTPObj(infile,outfile,publicname : string) : word;
 var
  size : word;
  F    : File;
 begin
- size:=GetFileSize(infile);
+ size:=WORD(GetFileSize(infile));
 {$I-}
  assign(F,outfile);
  rewrite(F,1);
@@ -396,6 +423,41 @@ begin
  Write_SegDef(F,$28,size,2,1,1);
  Write_PubDef(F,0,1,publicname,0,0);
  Write_FileContents(F,infile,1,0);
+ Write_ModEnd(F);
+ close(F);
+{$I+}
+ result:=IORESULT;
+end;
+
+procedure ChangePubDefStr(index : byte;var data; PublicName : string; PublicOffset : word; typeindex : byte);
+var
+ DataA : array[1..255] of TPubDefStrRec absolute data;
+begin
+  dataA[index].StringLength:=length(publicname);
+  dataA[index].PubLicName:=publicname;
+  dataA[index].PublicOffset:=publicoffset;
+  dataA[index].TypeIndex:=typeindex;
+end;
+
+Function CreateTPObj(infile,outfile,publicname,publicsizename : string) : word;
+var
+ size : word;
+ F    : File;
+ data : array[1..2] of TPubDefStrRec;
+begin
+ size:=WORD(GetFileSize(infile));
+{$I-}
+ assign(F,outfile);
+ rewrite(F,1);
+ Write_THeadr(F,#$3a#$3a);
+ Write_LNames(F,'#CODE##');
+ Write_SegDef(F,$28,size+2,2,1,1);  //+2 is the addtional bytes we will need to include the size information
+
+ ChangePubDefStr(1,data,publicname,0,0);
+ ChangePubDefStr(2,data,publicsizename,size,0);
+ Write_PubDefRecords(F,0,1,data,2);
+
+ Write_FileContentsAndSize(F,infile,1,0);
  Write_ModEnd(F);
  close(F);
 {$I+}

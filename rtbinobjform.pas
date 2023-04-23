@@ -12,7 +12,9 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    EditPublicSizeName: TEdit;
     OpenDialog: TOpenDialog;
+    PublicSizeLabel: TLabel;
     SaveAsButton: TButton;
     EditFileName: TEdit;
     InfoLabel: TLabel;
@@ -49,6 +51,7 @@ begin
     EditFileName.Text:=OpenDialog.FileName;
     sname:=UpperCase(ExtractFileName(ExtractFileNameWithoutExt(OpenDialog.FileName)));
     EditPublicName.Text:=sname;
+    EditPublicSizeName.Text:=sname+'SIZE';
   end;
 end;
 
@@ -79,7 +82,11 @@ var
   error : word;
 begin
   if SaveDialog.Execute = false then exit;
-  error:=CreateTPObj(OpenDialog.Filename,SaveDialog.FileName,EditPublicName.Text);
+  if EditPublicSizeName.Text<>'' then
+     error:=CreateTPObj(OpenDialog.Filename,SaveDialog.FileName,EditPublicName.Text,EditPublicSizeName.Text)
+   else
+     error:=CreateTPObj(OpenDialog.Filename,SaveDialog.FileName,EditPublicName.Text);
+
   if error=0 then
   begin
     InfoLabel.Caption:='New Obj successfully created and saved!';
