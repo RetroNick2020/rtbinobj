@@ -19,3 +19,5 @@ link from Turbo Pascal/freepascal 8086 with $L directive
 procedure MYIMAGE; external;
 
 {$L image.obj}
+
+![](https://github.com/retronick2020/rtbinobj/wiki/rtbinobj.png)  
