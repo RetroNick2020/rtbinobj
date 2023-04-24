@@ -1,0 +1,22 @@
+CC=cl /c /Zi
+CFLAGS=/W4 /WX /AL
+
+LN=link
+LFLAGS=/MAP:FULL /co
+
+TXTFILE=BinToObj.txt
+
+BinToObj.exe: BinToObj.obj
+ $(LN) $(LFLAGS) BinToObj;
+
+BinToObj.obj: BinToObj.c
+ $(CC) $(CFLAGS) $**
+
+Example.exe: Example.obj Example.bin
+ $(LN) $(LFLAGS) Example.obj Example.bin;
+
+Example.obj: Example.c
+ $(CC) $(CFLAGS) $**
+
+Example.bin: BinToObj.exe $(TXTFILE)
+ BinToObj $(TXTFILE) Example.bin

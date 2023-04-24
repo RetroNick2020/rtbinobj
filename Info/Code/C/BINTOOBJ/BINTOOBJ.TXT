@@ -1,0 +1,100 @@
+Contents
+--------
+0. Introduction
+1. Synopsis
+2. How it works
+3. Compiler
+4. Example
+5. Wrap up
+6. File list
+
+
+0. Introduction
+---------------
+
+This material has been placed in the public domain and as such there are no
+limitations on its use.  I do ask however that an acknowledgement is made if
+this helps you out and the header remains intact in the source (yes I've got
+an ego too folks).  As is usually the case, no warranties explicitly or
+implied is made with this stuff.
+
+
+1. Synopsis
+-----------
+
+This program takes any binary file and converts it to an .OBJ file which can
+be linked with your application.  Two symbols are defined at the start and end
+of the data through which you can address and size the information.
+
+Where more than 64K is required, multiple segments are created being named
+BINARY00, BINARY01 .. BINARY99.
+
+
+2. How it works
+---------------
+
+The following object records are created:
+
+THEADR
+LNAMES
+        SEGDEF          } Multiple segments
+        [PUBDEF]        } may be output
+        LEDATA          } depending on size
+MODEND
+
+The optional PUBDEF are output for both the first and last (or both if there
+is only one segment) declaring the symbols _RawExeStart and _RawExeEnd which
+may be referenced from within C (as RawExeStart and RawExeEnd) or ASM and give
+the address of the start and the byte following the end of the data written. 
+See the accompanying EXAMPLE.C and BINTOOBJ.H for examples of how to use
+these symbols.
+
+The LEDATA segments are called BINARY00, BINARY01 .. and have a classname of
+'FAR_DATA' to combine them in the correct area in the link file.
+
+If you want more information about the object module, I suggest you get hold
+of an object module dump program (such as TDUMP in the Compuserve BCPPDOS
+forum) and see what's going on.
+
+
+3. Compilers
+------------
+Microsoft C 7.00 was used to compile this, using a command line of:
+
+CL /AL /Za /W4 /WX bintoobj.c
+
+As this is the most stringent error checking I can get, I'll assume the code
+is reasonably portable to another compiler.
+
+
+4. Example
+----------
+
+Supplied is a small example of how to use the output from BinToObj.  The
+example program simply prints a file to stdout.  The .TXT file is embedded
+directly into the final .EXE though (this is a bit like those README.COM
+producing programs, though not as extensive).  The code has been tested using
+a 100K .TXT file with no problems.
+
+A small header is printed first followed by the text.  The output may be
+redirected and compared against the original text.
+
+
+5. Wrap up
+----------
+
+Any suggestions, improvements, etc. are all welcome.  You can contact me via
+email at the address below.
+
+
+6. File list
+------------
+
+BINtoOBJ.txt    (this file)
+BINtoOBJ.c      
+BINtoOBJ.h      }
+makefile        } Example usage
+example.c       }
+
+Lee Brown      Compuserve: 100325,3304
+
