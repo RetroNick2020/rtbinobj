@@ -1,0 +1,148 @@
+ZObj, version 1.00
+by David Neal Dubois
+
+THE OBJECT FILE CREATED BY ZOBJ HAS A DIFFERENT PROGRAM INTERFACE THAN THAT
+OF BINOBJ. YOU MUST READ THE FULL DOCUMENTATION BEFORE USING IT.
+
+This program is hereby donated to the public domain. Donations are
+accepted.
+
+Normally, when distributing a program like this, I add enough comments so
+that someone who knows nothing about what I'm doing will be able learn all
+the pertinent details. I like to think that that is a major component of
+the value of the programs I distribute here. Unfortunately, in this case, I
+simply haven't had the time to invest. I am putting together this
+documentation in hurry. I would have liked to, for example, added comments
+so that someone who was entirely unfamiliar with the format of .OBJ files,
+would be able to understand exactly what is being done and why. There are
+also a few features that I would like to add.
+
+If you find this program useful and would like to encourage me to add such
+documentation, or encourage me to add some more features, or encourage me
+to publish more useful programs like these in the future, I will accept
+donations. Please send these to:
+
+                  David Neal Dubois
+                  Zelkop Software
+                  P.O. Box 5177
+                  Armdale, Nova Scotia
+                  Canada, B3L 4M7
+
+If I actually receive enough money from anyone to pay for a diskette and a
+stamp, I'll be sure to send them any updates. (Please, make cheques payable
+to David Dubois).
+
+---------------------------------------------------------------
+
+ZObj is very similar to Borland's BinOBJ utility. It converts a binary data
+file into an object file that can be linked into your Turbo Pascal program.
+I call this OBJitizing data. It has a couple of advantages over BinOBJ:
+
+[1] It eliminates the need for complex programming to find the address of
+    your data in an overlaid unit.
+
+[2] The program interface makes more sense, or least it does to me.
+
+[3] It's much faster.
+
+[4] It may produce smaller object files.
+
+Running ZObj is similar to running BinOBJ. The command line syntax looks
+like this:
+
+ZObj <binary file name> <object file name> <link identifier> [MaxLEDATA]
+
+(The last parameter is optional, and will be explained later.)
+
+Note that ZObj does not automatically add any default extensions to your
+file names. (One of those features I would have liked to time to add, and
+may be added if I receive any donations.)
+
+For example, if you have a binary file called Screen1.DAT, and you want to
+make an object file called Screen1.OBJ, at the DOS prompt, type:
+
+ZObj Screen1.DAT Screen1.OBJ Screen1Link
+
+ZObj requires a somewhat different interface in your program than BinOBJ.
+BinOBJ requires you to define a procedure in your code. The problem is, it
+really isn't a procedure because it can't be called. I think this doesn't
+make sense. Then, with BinOBJ you have to find the address of your data
+using the @ operator on the procedure, which is still a little towards left
+field if you ask me. Besides, it doesn't work if the data is overlaid.
+
+On the other hand, ZObj requires you to define a function in your program.
+This is a real for true function that you can call. All the function does
+is return the address of your data. This will work whether or not your data
+has been overlaid. Also, it uses no undocumented features (unlike the
+methods described in my write up in PC Magazine.) It should therefore be
+fully portable to old versions of Turbo Pascal as well as future versions.
+
+Let's say for example, the binary data you have OBJitized is of a type
+called ScreenDataType. You may write:
+
+type
+  ScreenDataType = array [ 1 .. 4000 ] of byte;
+  ScreenDataPtr  = ^ ScreenDataType;
+
+Then you can declare your function as follows:
+
+  function Screen1Link : ScreenDataPtr;
+  external;
+  {$L Screen1.OBJ}
+
+Personally, I think makes a lot more sense whether or not your data is
+overlaid. When you call function Screen1Link, you get a pointer that you
+can dereference to find your data. If you have a procedure called
+DisplayScreen which takes one parameter of type ScreenData, you may write:
+
+  DisplayScreen ( Screen1Link ^ );
+
+Remember, just because it gives you the correct address for overlaid
+OBJitized data, doesn't mean that it can keep your data from being shifted
+in and out of memory. If DisplayScreen, for example, was in another
+overlaid unit, your data might be swapped out before it had a chance to be
+displayed.
+
+As ZObj works now, you must declare your function to be a FAR function. I
+did that because I always declare everything as FAR. (This might become an
+option if I receive any donations.) That means that you can either add the
+{$F+} compiler option to the function declaration, or choose "Force FAR
+calls" from the Options/Compile menu. Alternately, you can change the
+source code. I marked the appropriate place in the code. You have to change
+the RETF, which is $CB to a RETN, which is $C3. 
+
+I'll tell you now about that last command line option, MaxLEDATA. Normally,
+in an object file, an LEDATA record is limited to 1024 bytes. (If you don't
+know what an LEDATA record is, don't worry, it's not really very
+important. Please read on.) You can create one that is larger though. If
+you run TDump on it, or TLink, it will tell you that you are up a tree, but
+Turbo Pascal will still handle it just fine. The upside of all this, to
+those who don't know what I'm talking about, is that if you are OBJitizing
+a large file, say about 50K, and your LEDATA record is larger than 1024
+bytes, then your .OBJ file will turn out to be smaller. This is because
+there is several bytes overhead associated with each LEDATA record.
+(Incidently, BinOBJ doesn't even use the legal maximum of 1024, but a
+number somewhat smaller than this.)
+
+With an extremely large file, say over 60K, this can make the difference
+between whether or not Turbo Pascal can actually link in your data. The TP
+linker will not work with an .OBJ file of larger than 64K bytes, regardless
+of how much code it would generate. If you specify MaxLEDATA to be a large
+number, say 65000, ZObj wastes no bytes in creating the .OBJ file, so you
+can in fact link in more data than BinOBJ will possibly allow. 
+
+On the command line, type:
+
+ZObj LotsO.DAT LotsO.OBJ LotsOLink 65000
+
+That's all I have time for now. If you have any questions or comments you
+can send them to the address above, or you can usually find me on
+CompuServe's BPROGA forum, User ID 71401,747. You can leave a message, or
+EasyPlex me. (Of course, questions accompanied with a donation will find
+their way to the top of my list.)
+
+Oh, incidentally, one of the features I was planning on adding was the
+ability to create an .OBJ file suitable for a C program. Is any one is
+looking for such a thing? 
+
+ 
