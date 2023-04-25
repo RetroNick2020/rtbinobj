@@ -1,6 +1,6 @@
 # rtbinobj
 
-A Turbo Pascal BINOBJ clone for Windows/Linux - Includes GUI and console versions
+A Turbo Pascal/C BINOBJ/BGIBIN clone for Windows/Linux - Includes GUI and console versions
 
 In addtion to supporting the same output format (byte exact) you can also now add 
 
