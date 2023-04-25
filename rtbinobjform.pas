@@ -5,16 +5,22 @@ unit rtbinobjform;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls,LazFileUtils,objlib;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
+  LazFileUtils, objlib;
 
 type
 
   { TForm1 }
 
   TForm1 = class(TForm)
+    FarCallCheckBox: TCheckBox;
     EditPublicSizeName: TEdit;
+    EditSegmentName: TEdit;
+    EditClassName: TEdit;
     OpenDialog: TOpenDialog;
     PublicSizeLabel: TLabel;
+    ObjModeRadioGroup: TRadioGroup;
+    SegmentNameLabel: TLabel;
     SaveAsButton: TButton;
     EditFileName: TEdit;
     InfoLabel: TLabel;
@@ -22,11 +28,17 @@ type
     InFileButton: TButton;
     PublicLabel: TLabel;
     SaveDialog: TSaveDialog;
+    ClassNameLabel: TLabel;
+    procedure FarCallCheckBoxChange(Sender: TObject);
     procedure InFileButtonClick(Sender: TObject);
+    procedure ObjModeRadioGroupClick(Sender: TObject);
     procedure SaveAsButtonClick(Sender: TObject);
   private
     function ValidFields : boolean;
+    procedure CreateTPOBJFile;
+    procedure CreateTCOBJFile;
     procedure CreateOBJFile;
+
   public
 
   end;
@@ -49,9 +61,51 @@ begin
   begin
     InfoLabel.Caption:='';
     EditFileName.Text:=OpenDialog.FileName;
-    sname:=UpperCase(ExtractFileName(ExtractFileNameWithoutExt(OpenDialog.FileName)));
-    EditPublicName.Text:=sname;
-    EditPublicSizeName.Text:=sname+'SIZE';
+    if ObjModeRadioGroup.ItemIndex = 0 then
+    begin
+       sname:=UpperCase(ExtractFileName(ExtractFileNameWithoutExt(OpenDialog.FileName)));
+       EditPublicName.Text:=sname;
+       EditPublicSizeName.Text:=sname+'SIZE';
+    end
+    else
+    begin
+      sname:=LowerCase(ExtractFileName(ExtractFileNameWithoutExt(OpenDialog.FileName)));
+      EditPublicName.Text:='_'+sname;
+      EditPublicSizeName.Text:='_'+sname+'size';
+    end;
+  end;
+end;
+
+procedure TForm1.FarCallCheckBoxChange(Sender: TObject);
+begin
+  if FarCallCheckBox.Checked  then
+  begin
+    EditSegmentName.Text:='';
+    EditSegmentName.Enabled:=false;
+    EditClassName.Text:='';
+    EditClassName.Enabled:=false;
+  end
+  else
+  begin
+    EditSegmentName.Enabled:=true;
+    EditClassName.Enabled:=true;
+  end;
+end;
+
+procedure TForm1.ObjModeRadioGroupClick(Sender: TObject);
+begin
+  if ObjModeRadioGroup.ItemIndex = 0 then
+  begin
+    EditSegmentName.Enabled:=false;
+    EditClassName.Enabled:=false;
+    FarCallCheckbox.Enabled:=false;
+  end
+  else if ObjModeRadioGroup.ItemIndex = 1 then
+  begin
+    EditSegmentName.Enabled:=true;
+    EditClassName.Enabled:=true;
+    FarCallCheckbox.Enabled:=true;
+     FarCallCheckbox.Checked:=false;
   end;
 end;
 
@@ -77,11 +131,10 @@ begin
     end;
 end;
 
-procedure TForm1.CreateOBJFile;
+procedure TForm1.CreateTPOBJFile;
 var
   error : word;
 begin
-  if SaveDialog.Execute = false then exit;
   if EditPublicSizeName.Text<>'' then
      error:=CreateTPObj(OpenDialog.Filename,SaveDialog.FileName,EditPublicName.Text,EditPublicSizeName.Text)
    else
@@ -95,6 +148,32 @@ begin
   begin
     InfoLabel.Caption:='Ouch it looks like we had booboo #'+IntToStr(error);
   end;
+end;
+
+procedure TForm1.CreateTCOBJFile;
+var
+  error : word;
+begin
+  if EditPublicSizeName.Text<>'' then
+     error:=CreateTCObj(OpenDialog.Filename,SaveDialog.FileName,EditPublicName.Text,EditPublicSizeName.Text,EditSegmentName.Text,EditClassName.Text,FarCallCheckBox.Checked)
+   else
+     error:=CreateTCObj(OpenDialog.Filename,SaveDialog.FileName,EditPublicName.Text,EditSegmentName.Text,EditClassName.Text,FarCallCheckBox.Checked);
+
+
+  if error=0 then
+  begin
+    InfoLabel.Caption:='New Obj successfully created and saved!';
+  end
+  else
+  begin
+    InfoLabel.Caption:='Ouch it looks like we had booboo #'+IntToStr(error);
+  end;
+end;
+
+procedure TForm1.CreateOBJFile;
+begin
+  if SaveDialog.Execute = false then exit;
+  if ObjModeRadioGroup.ItemIndex = 0 then CreateTPObjFile else CreateTCObjFile;
 end;
 
 end.

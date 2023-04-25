@@ -26,10 +26,13 @@ procedure Write_SegmentData(var F : File; SegmentIndex: byte; EnumeratedDataOffs
 function GetFileSize(filename : string) : longword;
 Procedure Write_FileContents(var F : File;filename : string;segIdx: byte; dataOffset: word);
 procedure Write_ModEnd(var F : File);
-
 procedure Write_PubDefRecords(var F : File; BaseGroupIndex: byte; BaseSegmentIndex: byte;var rdata;rcount : word);
+
 Function CreateTPObj(infile,outfile,publicname : string) : word;
 Function CreateTPObj(infile,outfile,publicname,publicsizename : string) : word;
+
+Function CreateTCObj(infile,outfile,publicname,segname,classname : string;UseFswitch : Boolean) : word;
+Function CreateTCObj(infile,outfile,publicname,publicsizename,segname,classname : string;UseFswitch : Boolean) : word;
 
 implementation
 
@@ -331,10 +334,10 @@ procedure Write_LeData(var F : File;SegmentIndex : Byte;EnumeratedDataOffset : w
 var
   recordPtr: PByte;
 begin
-  GetMem(recordPtr, dataLength + 3);
+  GetMem(recordPtr, dataLength + 3);       // +3 is for Segmentindex (1) and EnumeratedDataOffset(2)
   recordPtr^ := SegmentIndex;
-  (recordPtr + 1)^ := EnumeratedDataOffset and $FF;
-  (recordPtr + 2)^ := EnumeratedDataOffset shr 8;
+  (recordPtr + 1)^ := EnumeratedDataOffset and $FF;    //  LO(EnumeratedDataOffset);
+  (recordPtr + 2)^ := EnumeratedDataOffset shr 8;      //  HI(EnumeratedDataOffset);
   Move(pbyte(databytes)^, (recordPtr + 3)^, dataLength);
 
   Write_Id_Length_Data(F, $A0,recordPtr^,datalength+3);
@@ -463,6 +466,81 @@ begin
 {$I+}
  result:=IORESULT;
 end;
+
+// Turbo C's BGIOBJ /F switch inserts another LName that is the same as the public name
+// eg default is _TEXT CODE, if public name is _IMAGE, LName section becomes IMAGE_TEXT CODE
+// /F switch has not used when segname is provided
+// segname overwrites _TEXT and classname overwrites CODE
+function CreateTCLNames(infile,publicname,segname,classname : string;UseFswitch : boolean) : string;
+var
+ LNames,defaultSegName,defaultClassName : string;
+begin
+ defaultSegName:='_TEXT';
+ defaultClassName:='CODE';
+
+ if segname<>'' then defaultSegName:=segname;
+ if classname<>'' then defaultClassName:=classname;
+
+ if useFswitch and (segname='') then
+ begin
+    defaultSegname:=publicname+'_TEXT';
+    if pos('_',defaultSegname)=1 then Delete(DefaultSegname,1,1);
+ end;
+ LNames:='#'+defaultSegName+'#'+defaultClassName+'#';
+ result:=LNames;
+end;
+
+Function CreateTCObj(infile,outfile,publicname,segname,classname : string;UseFswitch : Boolean) : word;
+var
+ size : word;
+ F    : File;
+ LNames : string;
+begin
+ size:=WORD(GetFileSize(infile));
+{$I-}
+ assign(F,outfile);
+ rewrite(F,1);
+
+ Write_THeadr(F,#$3a#$3a);
+ LNames:=CreateTCLNames(infile,publicname,segname,classname,UseFSwitch);
+ Write_LNames(F,LNames);
+ Write_SegDef(F,$68,size,2,3,1);     //borland TC uses $68  = 2,3,1 - if Overlayindex is not 1 - does not work
+ Write_PubDef(F,0,1,publicname,0,0);
+ Write_FileContents(F,infile,1,0);
+ Write_ModEnd(F);
+ close(F);
+{$I+}
+ result:=IORESULT;
+end;
+
+Function CreateTCObj(infile,outfile,publicname,publicsizename,segname,classname : string;UseFswitch : Boolean) : word;
+var
+ size : word;
+ F    : File;
+ data : array[1..2] of TPubDefStrRec;
+ LNames : string;
+begin
+ size:=WORD(GetFileSize(infile));
+{$I-}
+ assign(F,outfile);
+ rewrite(F,1);
+ Write_THeadr(F,#$3a#$3a);
+ LNames:=CreateTCLNames(infile,publicname,segname,classname,UseFSwitch);
+ Write_LNames(F,LNames);
+
+ Write_SegDef(F,$68,size+2,2,3,1);  //+2 is the addtional bytes we will need to include the size information
+
+ ChangePubDefStr(1,data,publicname,0,0);
+ ChangePubDefStr(2,data,publicsizename,size,0);
+ Write_PubDefRecords(F,0,1,data,2);
+
+ Write_FileContentsAndSize(F,infile,1,0);
+ Write_ModEnd(F);
+ close(F);
+{$I+}
+ result:=IORESULT;
+end;
+
 
 begin
 end.

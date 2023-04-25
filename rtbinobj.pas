@@ -4,7 +4,7 @@ Program RtBinToObj;
   uses ObjLib;
 
 Const
- ProgramName = 'RtBinObj v1.1 - Released April 23 - 2023 By RetroNick';
+ ProgramName = 'RtBinObj v1.2 - Released April 24 - 2023 By RetroNick';
 
 procedure Usage;
 begin

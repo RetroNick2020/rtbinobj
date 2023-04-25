@@ -1,11 +1,11 @@
 object Form1: TForm1
-  Left = 599
-  Height = 214
-  Top = 460
-  Width = 556
-  Caption = 'RtBinObj v1.1'
-  ClientHeight = 214
-  ClientWidth = 556
+  Left = 673
+  Height = 269
+  Top = 583
+  Width = 605
+  Caption = 'RtBinObj v1.2 By RetroNick - Released April 24 - 2023'
+  ClientHeight = 269
+  ClientWidth = 605
   Color = clForm
   LCLVersion = '2.0.10.0'
   object InFileButton: TButton
@@ -50,7 +50,7 @@ object Form1: TForm1
     Left = 0
     Height = 32
     Top = 0
-    Width = 556
+    Width = 605
     Alignment = taCenter
     Anchors = [akTop, akLeft, akRight]
     AutoSize = False
@@ -63,18 +63,18 @@ object Form1: TForm1
     OptimalFill = True
   end
   object SaveAsButton: TButton
-    Left = 432
+    Left = 496
     Height = 25
-    Top = 144
+    Top = 216
     Width = 75
     Caption = 'Save As'
     OnClick = SaveAsButtonClick
-    TabOrder = 4
+    TabOrder = 8
   end
   object PublicSizeLabel: TLabel
     Left = 8
     Height = 15
-    Top = 124
+    Top = 128
     Width = 91
     Caption = 'Public Size Name'
     ParentColor = False
@@ -87,6 +87,79 @@ object Form1: TForm1
     MaxLength = 20
     ParentFont = False
     TabOrder = 3
+  end
+  object SegmentNameLabel: TLabel
+    Left = 16
+    Height = 15
+    Top = 160
+    Width = 82
+    Caption = 'Segment Name'
+    ParentColor = False
+  end
+  object EditSegmentName: TEdit
+    Left = 120
+    Height = 23
+    Top = 152
+    Width = 160
+    Enabled = False
+    MaxLength = 20
+    ParentFont = False
+    TabOrder = 4
+  end
+  object ClassNameLabel: TLabel
+    Left = 36
+    Height = 15
+    Top = 192
+    Width = 62
+    Caption = 'Class Name'
+    ParentColor = False
+  end
+  object EditClassName: TEdit
+    Left = 120
+    Height = 23
+    Top = 184
+    Width = 160
+    Enabled = False
+    MaxLength = 20
+    ParentFont = False
+    TabOrder = 5
+  end
+  object ObjModeRadioGroup: TRadioGroup
+    Left = 416
+    Height = 105
+    Top = 56
+    Width = 168
+    AutoFill = True
+    Caption = 'OBJ Mode'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 1
+    ClientHeight = 85
+    ClientWidth = 164
+    ItemIndex = 0
+    Items.Strings = (
+      'Turbo Pascal - BINOBJ'
+      'Turbo C - BGIOBJ'
+    )
+    OnClick = ObjModeRadioGroupClick
+    TabOrder = 7
+  end
+  object FarCallCheckBox: TCheckBox
+    Left = 36
+    Height = 19
+    Hint = 'Segment Name must be blank'
+    Top = 222
+    Width = 96
+    BidiMode = bdRightToLeft
+    Caption = '      far calls      '
+    Enabled = False
+    OnChange = FarCallCheckBoxChange
+    ParentBidiMode = False
+    TabOrder = 6
   end
   object OpenDialog: TOpenDialog
     Left = 440
