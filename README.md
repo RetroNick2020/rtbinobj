@@ -1,14 +1,15 @@
 # rtbinobj
+Windows tool to convert binary files To DOS Object (OMF) format. Creates byte exact files as Turbo Pascal 
 
-A Turbo Pascal, Turbo C, QuickC, QuickPascal, and Open Watcom for Windows. Allows you to embed images/audio or 
+BINOBJ and Turbo C BGIOBJ. Can be used with Turbo Pascal, QuickPascal, Freepascal 8086,Turbo C, QuickC, and 
 
-any binary file to your exe and access at runtime using extern variable. A clone of the Turbo Pascal/C tool BINBOJ/BGIOBJ but
+Open Watcom compilers. Allows you to embed images/audio or any binary file to your exe and access at runtime 
 
-works in Windows. The output format is strictly for DOS OBJ format. Includes GUI and console versions
+using extern variable. The output format is strictly for DOS OBJ format. Includes GUI and console versions
 
 In addtion to supporting the same output format (byte exact) you can also now add 
 
-"public size name" to access size of linked file at runtime. Examples to follow.
+"public size name" to access size of linked file at runtime. Example for Turbo Pascal in Examples directory.
 
 
 rtbinobjgui.exe is the GUI version - just click and select your file, Save As to convert to OBJ.
