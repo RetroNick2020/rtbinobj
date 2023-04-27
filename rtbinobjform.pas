@@ -8,6 +8,9 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
   LazFileUtils, objlib;
 
+Const
+  ProgramName = 'RtBinObj v1.3 By RetroNick - Released April 26 - 2023';
+
 type
 
   { TForm1 }
@@ -30,6 +33,7 @@ type
     SaveDialog: TSaveDialog;
     ClassNameLabel: TLabel;
     procedure FarCallCheckBoxChange(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
     procedure InFileButtonClick(Sender: TObject);
     procedure ObjModeRadioGroupClick(Sender: TObject);
     procedure SaveAsButtonClick(Sender: TObject);
@@ -38,6 +42,8 @@ type
     procedure CreateTPOBJFile;
     procedure CreateTCOBJFile;
     procedure CreateOBJFile;
+    procedure CreateOWDOS32OBJFile;
+    procedure CreateOWDos16OBJFile;
 
   public
 
@@ -92,6 +98,11 @@ begin
   end;
 end;
 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  Caption:=ProgramName;
+end;
+
 procedure TForm1.ObjModeRadioGroupClick(Sender: TObject);
 begin
   if ObjModeRadioGroup.ItemIndex = 0 then
@@ -99,14 +110,30 @@ begin
     EditSegmentName.Enabled:=false;
     EditClassName.Enabled:=false;
     FarCallCheckbox.Enabled:=false;
+    FarCallCheckbox.checked:=false;
   end
   else if ObjModeRadioGroup.ItemIndex = 1 then
   begin
     EditSegmentName.Enabled:=true;
     EditClassName.Enabled:=true;
     FarCallCheckbox.Enabled:=true;
-     FarCallCheckbox.Checked:=false;
+    FarCallCheckbox.Checked:=false;
+  end
+  else if ObjModeRadioGroup.ItemIndex = 2 then
+  begin
+    EditSegmentName.Enabled:=true;
+    EditClassName.Enabled:=true;
+    FarCallCheckbox.Enabled:=true;
+    FarCallCheckbox.Checked:=false;
+  end
+  else if ObjModeRadioGroup.ItemIndex = 3 then
+  begin
+    EditSegmentName.Enabled:=true;
+    EditClassName.Enabled:=true;
+    FarCallCheckbox.Enabled:=false;
+    FarCallCheckbox.Checked:=false;
   end;
+
 end;
 
 procedure TForm1.SaveAsButtonClick(Sender: TObject);
@@ -170,10 +197,56 @@ begin
   end;
 end;
 
+
+procedure TForm1.CreateOWDOS32OBJFile;
+var
+  error : word;
+begin
+  if EditPublicSizeName.Text<>'' then
+     error:=CreateOWObj(OpenDialog.Filename,SaveDialog.FileName,EditPublicName.Text,EditPublicSizeName.Text,EditSegmentName.Text,EditClassName.Text,FarCallCheckBox.Checked)
+   else
+     error:=CreateOWObj(OpenDialog.Filename,SaveDialog.FileName,EditPublicName.Text,EditSegmentName.Text,EditClassName.Text,FarCallCheckBox.Checked);
+
+  if error=0 then
+  begin
+    InfoLabel.Caption:='New Obj successfully created and saved!';
+  end
+  else
+  begin
+    InfoLabel.Caption:='Ouch it looks like we had booboo #'+IntToStr(error);
+  end;
+end;
+
+procedure TForm1.CreateOWDos16OBJFile;
+var
+  error : word;
+begin
+  //not a bug we are using the same format as Turbo C for the 16 bit - it works
+  if EditPublicSizeName.Text<>'' then
+     error:=CreateTCObj(OpenDialog.Filename,SaveDialog.FileName,EditPublicName.Text,EditPublicSizeName.Text,EditSegmentName.Text,EditClassName.Text,FarCallCheckBox.Checked)
+   else
+     error:=CreateTCObj(OpenDialog.Filename,SaveDialog.FileName,EditPublicName.Text,EditSegmentName.Text,EditClassName.Text,FarCallCheckBox.Checked);
+
+  if error=0 then
+  begin
+    InfoLabel.Caption:='New Obj successfully created and saved!';
+  end
+  else
+  begin
+    InfoLabel.Caption:='Ouch it looks like we had booboo #'+IntToStr(error);
+  end;
+end;
+
+
 procedure TForm1.CreateOBJFile;
 begin
   if SaveDialog.Execute = false then exit;
-  if ObjModeRadioGroup.ItemIndex = 0 then CreateTPObjFile else CreateTCObjFile;
+  case ObjModeRadioGroup.ItemIndex of 0:CreateTPObjFile;
+                                      1:CreateTCObjFile;
+                                      2:CreateOWDOS16OBJFile;
+                                      3:CreateOWDOS32OBJFile;
+
+  end;
 end;
 
 end.

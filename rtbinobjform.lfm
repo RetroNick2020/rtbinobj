@@ -1,12 +1,12 @@
 object Form1: TForm1
-  Left = 673
+  Left = 587
   Height = 269
-  Top = 583
+  Top = 380
   Width = 605
-  Caption = 'RtBinObj v1.2 By RetroNick - Released April 24 - 2023'
   ClientHeight = 269
   ClientWidth = 605
   Color = clForm
+  OnCreate = FormCreate
   LCLVersion = '2.0.10.0'
   object InFileButton: TButton
     Left = 24
@@ -127,6 +127,7 @@ object Form1: TForm1
   object ObjModeRadioGroup: TRadioGroup
     Left = 416
     Height = 105
+    Hint = 'Turbo Pascal Mode  compatible with QuickPascal and FreePascal 8086'#13#10'Turbo C Mode compatible QuickC'
     Top = 56
     Width = 168
     AutoFill = True
@@ -144,8 +145,12 @@ object Form1: TForm1
     Items.Strings = (
       'Turbo Pascal - BINOBJ'
       'Turbo C - BGIOBJ'
+      'Open Watcom DOS 16 bit'
+      'Open Watcom DOS 32 bit'
     )
     OnClick = ObjModeRadioGroupClick
+    ParentShowHint = False
+    ShowHint = True
     TabOrder = 7
   end
   object FarCallCheckBox: TCheckBox
