@@ -1,6 +1,10 @@
 # rtbinobj
 
-A Turbo Pascal/C BINOBJ/BGIBIN clone for Windows/Linux - Includes GUI and console versions
+A Turbo Pascal/C and Open Watcom BINOBJ/BGIBIN clone for Windows/Linux. Allows you to embed images/audio or 
+
+any binary file to your exe and access at runtime using extern variable.
+
+Includes GUI and console versions
 
 In addtion to supporting the same output format (byte exact) you can also now add 
 
