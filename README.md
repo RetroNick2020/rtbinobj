@@ -9,7 +9,9 @@ using extern variable. The output format is strictly for DOS OBJ format. Include
 
 In addtion to supporting the same output format (byte exact) you can also now add 
 
-"public size name" to access size of linked file at runtime. Example for Turbo Pascal in Examples directory.
+"public size name" to access size of linked file at runtime. Example for Turbo Pascal and Open Watcom in Examples 
+
+directory.
 
 
 rtbinobjgui.exe is the GUI version - just click and select your file, Save As to convert to OBJ.
