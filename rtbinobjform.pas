@@ -6,10 +6,10 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  LazFileUtils, objlib;
+  LazFileUtils, objlib,hunklib,bsavelib;
 
 Const
-  ProgramName = 'RtBinObj v1.3 By RetroNick - Released April 26 - 2023';
+  ProgramName = 'RtBinObj v1.4 By RetroNick - Released May 1 - 2023';
 
 type
 
@@ -23,6 +23,7 @@ type
     OpenDialog: TOpenDialog;
     PublicSizeLabel: TLabel;
     ObjModeRadioGroup: TRadioGroup;
+    AmigaMemRadioGroup: TRadioGroup;
     SegmentNameLabel: TLabel;
     SaveAsButton: TButton;
     EditFileName: TEdit;
@@ -32,19 +33,23 @@ type
     PublicLabel: TLabel;
     SaveDialog: TSaveDialog;
     ClassNameLabel: TLabel;
+    procedure AmigaMemRadioGroupClick(Sender: TObject);
     procedure FarCallCheckBoxChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure InFileButtonClick(Sender: TObject);
     procedure ObjModeRadioGroupClick(Sender: TObject);
     procedure SaveAsButtonClick(Sender: TObject);
   private
+    MemLoad     : Longword;
+
     function ValidFields : boolean;
     procedure CreateTPOBJFile;
     procedure CreateTCOBJFile;
     procedure CreateOBJFile;
     procedure CreateOWDOS32OBJFile;
     procedure CreateOWDos16OBJFile;
-
+    procedure CreateAmigaHunkFile;
+    procedure CreateBSaveFile;
   public
 
   end;
@@ -98,6 +103,23 @@ begin
   end;
 end;
 
+procedure TForm1.AmigaMemRadioGroupClick(Sender: TObject);
+begin
+  case AmigaMemRadioGroup.ItemIndex of 0:begin
+                                          MemLoad:=ANY_MEM;
+                                          EditSegmentName.Text:='ANYMEM';
+                                         end;
+                                       1:begin
+                                          MemLoad:=CHIP_MEM;
+                                          EditSegmentName.Text:='CHIPMEM';
+                                         end;
+                                       2:begin
+                                          MemLoad:=FAST_MEM;
+                                          EditSegmentName.Text:='FASTMEM';
+                                         end;
+ end;
+end;
+
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   Caption:=ProgramName;
@@ -107,32 +129,77 @@ procedure TForm1.ObjModeRadioGroupClick(Sender: TObject);
 begin
   if ObjModeRadioGroup.ItemIndex = 0 then
   begin
+    EditPublicName.Enabled:=true;
+    EditPublicSizeName.Enabled:=true;
     EditSegmentName.Enabled:=false;
     EditClassName.Enabled:=false;
+    SegmentNameLabel.Caption:='Segment Name';
+
+    AmigaMemRadioGroup.Enabled:=false;
     FarCallCheckbox.Enabled:=false;
     FarCallCheckbox.checked:=false;
   end
   else if ObjModeRadioGroup.ItemIndex = 1 then
   begin
+    EditPublicName.Enabled:=true;
+    EditPublicSizeName.Enabled:=true;
     EditSegmentName.Enabled:=true;
     EditClassName.Enabled:=true;
+    SegmentNameLabel.Caption:='Segment Name';
+
+    AmigaMemRadioGroup.Enabled:=false;
     FarCallCheckbox.Enabled:=true;
     FarCallCheckbox.Checked:=false;
   end
   else if ObjModeRadioGroup.ItemIndex = 2 then
   begin
+    EditPublicName.Enabled:=true;
+    EditPublicSizeName.Enabled:=true;
     EditSegmentName.Enabled:=true;
     EditClassName.Enabled:=true;
+    SegmentNameLabel.Caption:='Segment Name';
+
+    AmigaMemRadioGroup.Enabled:=false;
     FarCallCheckbox.Enabled:=true;
     FarCallCheckbox.Checked:=false;
   end
   else if ObjModeRadioGroup.ItemIndex = 3 then
   begin
+    EditPublicName.Enabled:=true;
+    EditPublicSizeName.Enabled:=true;
     EditSegmentName.Enabled:=true;
     EditClassName.Enabled:=true;
+    SegmentNameLabel.Caption:='Segment Name';
+
+    AmigaMemRadioGroup.Enabled:=false;
     FarCallCheckbox.Enabled:=false;
     FarCallCheckbox.Checked:=false;
-  end;
+  end
+  else if ObjModeRadioGroup.ItemIndex = 4 then
+  begin
+    EditPublicName.Enabled:=true;
+    EditPublicSizeName.Enabled:=true;
+    EditSegmentName.Enabled:=true;
+    EditClassName.Enabled:=false;
+
+    SegmentNameLabel.Caption:='      Hunk Name';
+
+    AmigaMemRadioGroup.Enabled:=true;
+    FarCallCheckbox.Enabled:=false;
+    FarCallCheckbox.Checked:=false;
+  end
+  else if ObjModeRadioGroup.ItemIndex = 5 then
+  begin
+    EditPublicName.Enabled:=false;
+    EditPublicSizeName.Enabled:=false;
+    EditSegmentName.Enabled:=false;
+    EditClassName.Enabled:=false;
+    SegmentNameLabel.Caption:='Segment Name';
+
+    AmigaMemRadioGroup.Enabled:=false;
+    FarCallCheckbox.Enabled:=false;
+    FarCallCheckbox.Checked:=false;
+  end
 
 end;
 
@@ -148,9 +215,13 @@ begin
     begin
       ShowMessage('No File Selected');
     end
-    else if EditPublicName.Text = ''  then
+    else if (EditPublicName.Text = '') and (ObjModeRadioGroup.ItemIndex <> 5) then
     begin
       ShowMessage('Public Name cannot be empty');
+    end
+    else if (EditSegmentName.Text = '') and (ObjModeRadioGroup.ItemIndex = 4) then
+    begin
+      ShowMessage('Hunk Name cannot be empty');
     end
     else
     begin
@@ -237,6 +308,43 @@ begin
   end;
 end;
 
+procedure TForm1.CreateAmigaHunkFile;
+var
+  IncludeFileSize : boolean;
+  error: word;
+begin
+  if EditPublicSizeName.Text<>'' then IncludeFileSize:=true else IncludeFileSize:=false;
+  error:=CreateHunkObj(OpenDialog.Filename,SaveDialog.FileName,EditPublicName.Text,EditPublicSizeName.Text,EditSegmentName.Text,IncludeFileSize,MemLoad);
+  if error=0 then
+  begin
+    InfoLabel.Caption:='New Hunk successfully created and saved!';
+  end
+  else
+  begin
+    InfoLabel.Caption:='Ouch it looks like we had booboo #'+IntToStr(error);
+  end;
+end;
+
+procedure TForm1.CreateBSaveFile;
+var
+  error: word;
+begin
+  if NOT ValidBSaveSource(OpenDialog.Filename)  then
+  begin
+    ShowMessage('Source File too big!');
+    exit;
+  end;
+  error:=CreateBSaveObj(OpenDialog.Filename,SaveDialog.FileName);
+  if error=0 then
+  begin
+    InfoLabel.Caption:='New BSave Object successfully created and saved!';
+  end
+  else
+  begin
+    InfoLabel.Caption:='Ouch it looks like we had booboo #'+IntToStr(error);
+  end;
+end;
+
 
 procedure TForm1.CreateOBJFile;
 begin
@@ -245,6 +353,8 @@ begin
                                       1:CreateTCObjFile;
                                       2:CreateOWDOS16OBJFile;
                                       3:CreateOWDOS32OBJFile;
+                                      4:CreateAmigaHunkFile;
+                                      5:CreateBSaveFile;
 
   end;
 end;

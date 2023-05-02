@@ -8,15 +8,17 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Classes, SysUtils, CustApp,
-  objlib;
+  objlib,hunklib,bsavelib;
 
 Const
-  ProgramName = 'RtBinObj v1.3 - Released April 26 - 2023 By RetroNick';
+  ProgramName = 'RtBinObj v1.4 - Released May 1 - 2023 By RetroNick';
 
   CompTP = 0;
   CompTC = 1;
   CompOW16 = 2;
   CompOW32 = 3;
+  CompAmigaHunk = 4;
+  CompBSAVE = 5;
 
 type
   { RtBinObj }
@@ -38,6 +40,9 @@ begin
                   CompTC:result:='Turbo C BGIOBJ Mode';
                   CompOW16:result:='Open Watcom DOS 16bit Mode';
                   CompOW32:result:='Open Watcom DOS 32bit Mode';
+                  CompAmigaHunk:result:='Amiga Hunk Mode';
+                  CompBSAVE:result:='QuickBasic\GWBASIC BSAVE Mode';
+
   end;
 end;
 
@@ -49,11 +54,15 @@ var
   publicsizename : string;
   segmentname    : string;
   clname         : string;
+  HunkName       : string;
   useFswitch     : boolean;
   CompilerMode   : integer;
+  MemLoad        : longword;
   error          : word;
 begin
+  MemLoad:=ANY_MEM; //amiga option
   CaseSensitiveOptions:=false;
+  HunkName:='ANY_MEM';
 
   // parse parameters
   if HasOption('h', 'help') or (ParamCount < 3) then begin
@@ -76,6 +85,8 @@ begin
   Case UpperCase(GetOptionValue('o')) of 'TC':CompilerMode:=CompTC;
                                          'OW16':CompilerMode:=CompOW16;
                                          'OW32':CompilerMode:=CompOW32;
+                                         'HUNK':CompilerMode:=CompAmigaHunk;
+                                         'BSAVE':CompilerMode:=CompBSAVE;
   end;
 
   if HasOption('f','usefswitch') and (CompilerMode in [CompTC,CompOW16,CompOW32]) then usefswitch:=true;
@@ -94,6 +105,28 @@ begin
   begin
      clname:=GetOptionValue('cn');
   end;
+
+  if (GetOptionValue('cn')<>'') and (CompilerMode in [CompTC,CompOW16,CompOW32]) then
+  begin
+     clname:=GetOptionValue('cn');
+  end;
+
+
+  if (GetOptionValue('ml')<>'') and (CompilerMode = CompAmigaHunk) then
+  begin
+    if UpperCase(GetOptionValue('ml')) = 'CHIP' then
+    begin
+      MemLoad:=CHIP_MEM;
+      HunkName:='CHIP_MEM';
+    end;
+    if UpperCase(GetOptionValue('ml')) = 'FAST' then
+    begin
+      MemLoad:=FAST_MEM;
+      HunkName:='FAST_MEM';
+    end;
+  end;
+
+
 
   if CompilerMode = CompTP then
   begin
@@ -127,6 +160,29 @@ begin
     begin
         error:=CreateOWObj(infile,outfile,publicname,segmentname,clname,UseFswitch);
     end;
+  end
+  else if CompilerMode = CompAmigaHunk then
+  begin
+    if publicsizename<>'' then
+    begin
+       error:=CreateHunkObj(infile,outfile,publicname,publicsizename,hunkname,True,MemLoad);
+    end
+    else
+    begin
+       error:=CreateHunkObj(infile,outfile,publicname,publicsizename,hunkname,False,MemLoad);
+    end;
+  end
+  else if CompilerMode = CompBSAVE then
+  begin
+    if NOT ValidBSaveSource(infile)  then
+    begin
+      writeln('Source File too big!');
+      Terminate;
+    end
+    else
+    begin
+     error:=CreateBSaveObj(infile,outfile);
+    end;
   end;
 
   if error = 0 then writeln('Converted Successfully using ',GetCompModeName(CompilerMode)) else writeln('Looks like we have an error# ',error);
@@ -152,15 +208,21 @@ begin
   writeln(programname);
   writeln('Usage: RtBinObj infile outfile public_name');
   writeln('  Optional -PS  public size name');
-  writeln('           -O   OBJ Mode {TP,TC,OW16,OW32');
+  writeln('           -O   OBJ Mode {TP,TC,OW16,OW32,HUNK,BSAVE}');
   writeln('           -SN  segment name');
   writeln('           -CN  class name');
+  writeln('           -HN  hunk name (Amiga 68k)');
   writeln('           -F   use far call');
+  writeln('           -ML  Memory Load {ANY,CHIP,FAST');
+
   writeln;
   writeln('eg. RtBinObj image.xgf image.obj  image -PS imagesize');
   writeln('eg. RtBinObj image.xgf image.obj  _image -PS _imagesize -O TC'); //turbo c BGIBIN mode
   writeln('eg. RtBinObj image.xgf image.obj  _image -PS _imagesize -F -O TC');
   writeln('eg. RtBinObj image.xgf image.obj  _image -PS _imagesize -SN segname -CN classname -O TC');
+  writeln('eg. RtBinObj image.xgf image.obj  _image -PS _imagesize -HN hunkname -O HUNK');  //Amiga
+  writeln('eg. RtBinObj image.xgf image.bsv -O BSAVE');                                    //QuickBasic/GWBASIC
+
 end;
 
 var

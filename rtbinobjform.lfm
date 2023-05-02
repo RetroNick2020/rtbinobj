@@ -1,10 +1,10 @@
 object Form1: TForm1
-  Left = 587
-  Height = 269
-  Top = 380
-  Width = 605
-  ClientHeight = 269
-  ClientWidth = 605
+  Left = 491
+  Height = 401
+  Top = 358
+  Width = 669
+  ClientHeight = 401
+  ClientWidth = 669
   Color = clForm
   OnCreate = FormCreate
   LCLVersion = '2.0.10.0'
@@ -50,7 +50,7 @@ object Form1: TForm1
     Left = 0
     Height = 32
     Top = 0
-    Width = 605
+    Width = 669
     Alignment = taCenter
     Anchors = [akTop, akLeft, akRight]
     AutoSize = False
@@ -63,13 +63,13 @@ object Form1: TForm1
     OptimalFill = True
   end
   object SaveAsButton: TButton
-    Left = 496
+    Left = 552
     Height = 25
-    Top = 216
+    Top = 352
     Width = 75
     Caption = 'Save As'
     OnClick = SaveAsButtonClick
-    TabOrder = 8
+    TabOrder = 9
   end
   object PublicSizeLabel: TLabel
     Left = 8
@@ -125,11 +125,11 @@ object Form1: TForm1
     TabOrder = 5
   end
   object ObjModeRadioGroup: TRadioGroup
-    Left = 416
-    Height = 105
+    Left = 384
+    Height = 152
     Hint = 'Turbo Pascal Mode  compatible with QuickPascal and FreePascal 8086'#13#10'Turbo C Mode compatible QuickC'
     Top = 56
-    Width = 168
+    Width = 224
     AutoFill = True
     Caption = 'OBJ Mode'
     ChildSizing.LeftRightSpacing = 6
@@ -139,14 +139,16 @@ object Form1: TForm1
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 1
-    ClientHeight = 85
-    ClientWidth = 164
+    ClientHeight = 132
+    ClientWidth = 220
     ItemIndex = 0
     Items.Strings = (
       'Turbo Pascal - BINOBJ'
       'Turbo C - BGIOBJ'
       'Open Watcom DOS 16 bit'
       'Open Watcom DOS 32 bit'
+      'Amiga 68k Hunk (vbcc / freepascal)'
+      'QuickBasic/GWBASIC (bsave)'
     )
     OnClick = ObjModeRadioGroupClick
     ParentShowHint = False
@@ -165,6 +167,32 @@ object Form1: TForm1
     OnChange = FarCallCheckBoxChange
     ParentBidiMode = False
     TabOrder = 6
+  end
+  object AmigaMemRadioGroup: TRadioGroup
+    Left = 384
+    Height = 96
+    Top = 224
+    Width = 185
+    AutoFill = True
+    Caption = 'Amiga Memory Type'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 1
+    ClientHeight = 76
+    ClientWidth = 181
+    Enabled = False
+    ItemIndex = 0
+    Items.Strings = (
+      'Any'
+      'Chip'
+      'Fast'
+    )
+    OnClick = AmigaMemRadioGroupClick
+    TabOrder = 8
   end
   object OpenDialog: TOpenDialog
     Left = 440
