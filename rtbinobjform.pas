@@ -6,10 +6,10 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  LazFileUtils, objlib,hunklib,bsavelib;
+  LazFileUtils, objlib,hunklib,bsavelib,cofflib;
 
 Const
-  ProgramName = 'RtBinObj v1.4 By RetroNick - Released May 1 - 2023';
+  ProgramName = 'RtBinObj v1.5 By RetroNick - Released May 17 - 2023';
 
 type
 
@@ -50,6 +50,8 @@ type
     procedure CreateOWDos16OBJFile;
     procedure CreateAmigaHunkFile;
     procedure CreateBSaveFile;
+    procedure CreateCOFFFile;
+
   public
 
   end;
@@ -200,7 +202,18 @@ begin
     FarCallCheckbox.Enabled:=false;
     FarCallCheckbox.Checked:=false;
   end
+  else if ObjModeRadioGroup.ItemIndex = 6 then
+    begin
+      EditPublicName.Enabled:=true;
+      EditPublicSizeName.Enabled:=true;
+      EditSegmentName.Enabled:=false;
+      EditClassName.Enabled:=false;
+      SegmentNameLabel.Caption:='Segment Name';
 
+      AmigaMemRadioGroup.Enabled:=false;
+      FarCallCheckbox.Enabled:=false;
+      FarCallCheckbox.Checked:=false;
+    end;
 end;
 
 procedure TForm1.SaveAsButtonClick(Sender: TObject);
@@ -325,6 +338,23 @@ begin
   end;
 end;
 
+procedure TForm1.CreateCOFFFile;
+var
+  IncludeFileSize : boolean;
+  error: word;
+begin
+  if EditPublicSizeName.Text<>'' then IncludeFileSize:=true else IncludeFileSize:=false;
+  error:=CreateCOFF(OpenDialog.Filename,SaveDialog.FileName,EditPublicName.Text,EditPublicSizeName.Text,IncludeFileSize);
+  if error=0 then
+  begin
+    InfoLabel.Caption:='New COFF successfully created and saved!';
+  end
+  else
+  begin
+    InfoLabel.Caption:='Ouch it looks like we had booboo #'+IntToStr(error);
+  end;
+end;
+
 procedure TForm1.CreateBSaveFile;
 var
   error: word;
@@ -355,6 +385,7 @@ begin
                                       3:CreateOWDOS32OBJFile;
                                       4:CreateAmigaHunkFile;
                                       5:CreateBSaveFile;
+                                      6:CreateCOFFFile;
 
   end;
 end;

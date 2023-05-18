@@ -1,9 +1,9 @@
 object Form1: TForm1
   Left = 491
-  Height = 401
+  Height = 431
   Top = 358
   Width = 669
-  ClientHeight = 401
+  ClientHeight = 431
   ClientWidth = 669
   Color = clForm
   OnCreate = FormCreate
@@ -65,7 +65,7 @@ object Form1: TForm1
   object SaveAsButton: TButton
     Left = 552
     Height = 25
-    Top = 352
+    Top = 376
     Width = 75
     Caption = 'Save As'
     OnClick = SaveAsButtonClick
@@ -126,7 +126,7 @@ object Form1: TForm1
   end
   object ObjModeRadioGroup: TRadioGroup
     Left = 384
-    Height = 152
+    Height = 177
     Hint = 'Turbo Pascal Mode  compatible with QuickPascal and FreePascal 8086'#13#10'Turbo C Mode compatible QuickC'
     Top = 56
     Width = 224
@@ -139,7 +139,7 @@ object Form1: TForm1
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 1
-    ClientHeight = 132
+    ClientHeight = 157
     ClientWidth = 220
     ItemIndex = 0
     Items.Strings = (
@@ -149,6 +149,7 @@ object Form1: TForm1
       'Open Watcom DOS 32 bit'
       'Amiga 68k Hunk (vbcc / freepascal)'
       'QuickBasic/GWBASIC (bsave)'
+      'COFF 32 bit'
     )
     OnClick = ObjModeRadioGroupClick
     ParentShowHint = False
@@ -171,7 +172,7 @@ object Form1: TForm1
   object AmigaMemRadioGroup: TRadioGroup
     Left = 384
     Height = 96
-    Top = 224
+    Top = 248
     Width = 185
     AutoFill = True
     Caption = 'Amiga Memory Type'

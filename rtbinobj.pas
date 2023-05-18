@@ -8,10 +8,10 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Classes, SysUtils, CustApp,
-  objlib,hunklib,bsavelib;
+  objlib,hunklib,bsavelib,cofflib;
 
 Const
-  ProgramName = 'RtBinObj v1.4 - Released May 1 - 2023 By RetroNick';
+  ProgramName = 'RtBinObj v1.5 - Released May 17 - 2023 By RetroNick';
 
   CompTP = 0;
   CompTC = 1;
@@ -19,7 +19,7 @@ Const
   CompOW32 = 3;
   CompAmigaHunk = 4;
   CompBSAVE = 5;
-
+  CompCOFF  = 6;
 type
   { RtBinObj }
 
@@ -42,6 +42,7 @@ begin
                   CompOW32:result:='Open Watcom DOS 32bit Mode';
                   CompAmigaHunk:result:='Amiga Hunk Mode';
                   CompBSAVE:result:='QuickBasic\GWBASIC BSAVE Mode';
+                  CompCOFF:result:='COFF 32bit Mode';
 
   end;
 end;
@@ -87,9 +88,11 @@ begin
                                          'OW32':CompilerMode:=CompOW32;
                                          'HUNK':CompilerMode:=CompAmigaHunk;
                                          'BSAVE':CompilerMode:=CompBSAVE;
+                                         'COFF':CompilerMode:=CompCOFF;
+
   end;
 
-  if HasOption('f','usefswitch') and (CompilerMode in [CompTC,CompOW16,CompOW32]) then usefswitch:=true;
+  if HasOption('f','usefswitch') and (CompilerMode in [CompTC,CompOW16]) then usefswitch:=true;
 
   if GetOptionValue('ps') <> '' then
   begin
@@ -99,11 +102,6 @@ begin
   if (GetOptionValue('sn')<>'') and (CompilerMode in [CompTC,CompOW16,CompOW32]) then
   begin
      segmentname:=GetOptionValue('sn');
-  end;
-
-  if (GetOptionValue('cn')<>'') and (CompilerMode in [CompTC,CompOW16,CompOW32]) then
-  begin
-     clname:=GetOptionValue('cn');
   end;
 
   if (GetOptionValue('cn')<>'') and (CompilerMode in [CompTC,CompOW16,CompOW32]) then
@@ -126,7 +124,10 @@ begin
     end;
   end;
 
-
+  if (GetOptionValue('hn')<>'') and (CompilerMode = CompAmigaHunk ) then
+  begin
+     hunkname:=GetOptionValue('hn');
+  end;
 
   if CompilerMode = CompTP then
   begin
@@ -183,6 +184,17 @@ begin
     begin
      error:=CreateBSaveObj(infile,outfile);
     end;
+  end
+  else if CompilerMode = CompCOFF then
+  begin
+    if publicsizename<>'' then
+    begin
+       error:=CreateCOFF(infile,outfile,publicname,publicsizename,True);
+    end
+    else
+    begin
+       error:=CreateCOFF(infile,outfile,publicname,publicsizename,FALSE);
+    end;
   end;
 
   if error = 0 then writeln('Converted Successfully using ',GetCompModeName(CompilerMode)) else writeln('Looks like we have an error# ',error);
@@ -208,7 +220,7 @@ begin
   writeln(programname);
   writeln('Usage: RtBinObj infile outfile public_name');
   writeln('  Optional -PS  public size name');
-  writeln('           -O   OBJ Mode {TP,TC,OW16,OW32,HUNK,BSAVE}');
+  writeln('           -O   OBJ Mode {TP,TC,OW16,OW32,HUNK,BSAVE,COFF}');
   writeln('           -SN  segment name');
   writeln('           -CN  class name');
   writeln('           -HN  hunk name (Amiga 68k)');
