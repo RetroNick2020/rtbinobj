@@ -50,21 +50,13 @@ type
   end;
 
   TCOFFSymbolTableArray = array[1..2] of TCOFFSymbolTable;
-  var
-  coff_header: TCOFFHeader;
-  section_headers: TCOFFSectionHeader;
-  section_data: TMemoryStream;
-  section_data_size: LongWord;
-  out_file: TFileStream;
-  string_symbol_table : TCOFFSymbolTableArray;
-  string_table : TCOFFStringTable;
 
 procedure SetHeader(var H : TCOFFHeader;fsize : LongWord;UseFileSizeSymbol : boolean);
 begin
   // Set the COFF header fields
-  H.Machine := $14C;
+  H.Machine :=$14C;  // for 64bit $8664
   H.NumberOfSections := 1;
-  H.TimeDateStamp := DateTimeToUnix(Now);
+  H.TimeDateStamp :=DateTimeToUnix(Now);
   H.PointerToSymbolTable := SizeOf(TCOFFHeader) + SizeOf(TCOFFSectionHeader)+((4+fsize+15) div 16)*16; // rounded to LongWords
   if UseFileSizeSymbol then H.NumberOfSymbols := 2 else H.NumberOfSymbols := 1;  //name and name_size
   H.SizeOfOptionalHeader := 0;
@@ -83,7 +75,7 @@ begin
   SH.PointerToLinenumbers := 0;
   SH.NumberOfRelocations := 0;
   SH.NumberOfLinenumbers := 0;
-  SH.Characteristics := $40;
+  SH.Characteristics :=$40;
 end;
 
 procedure SetStringValues(var STA : TCOFFSymbolTableArray;stable : word;offset,value : longword;sectionnumber,stype :word; StorageClass,AuxSymbols : byte);
@@ -153,7 +145,6 @@ end;
 Function CreateCOFF(inFile,OutFile,PublicName,publicsizename : String; UseFileSizeSymbol : Boolean) : word;
 var
  inF,OutF : File;
- error    : word;
  InFileSize : Longword;
  H  : TCOFFHeader;
  SH : TCOFFSectionHeader;

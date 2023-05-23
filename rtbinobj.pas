@@ -11,7 +11,7 @@ uses
   objlib,hunklib,bsavelib,cofflib;
 
 Const
-  ProgramName = 'RtBinObj v1.5 - Released May 17 - 2023 By RetroNick';
+  ProgramName = 'RtBinObj v1.6 - Released May 22 - 2023 By RetroNick';
 
   CompTP = 0;
   CompTC = 1;

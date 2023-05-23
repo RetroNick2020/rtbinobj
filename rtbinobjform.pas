@@ -9,7 +9,7 @@ uses
   LazFileUtils, objlib,hunklib,bsavelib,cofflib;
 
 Const
-  ProgramName = 'RtBinObj v1.5 By RetroNick - Released May 17 - 2023';
+  ProgramName = 'RtBinObj v1.6 By RetroNick - Released May 22 - 2023';
 
 type
 
@@ -36,6 +36,7 @@ type
     procedure AmigaMemRadioGroupClick(Sender: TObject);
     procedure FarCallCheckBoxChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
     procedure InFileButtonClick(Sender: TObject);
     procedure ObjModeRadioGroupClick(Sender: TObject);
     procedure SaveAsButtonClick(Sender: TObject);
@@ -43,6 +44,7 @@ type
     MemLoad     : Longword;
 
     function ValidFields : boolean;
+    procedure SetPublicNames;
     procedure CreateTPOBJFile;
     procedure CreateTCOBJFile;
     procedure CreateOBJFile;
@@ -65,16 +67,11 @@ implementation
 
 { TForm1 }
 
-procedure TForm1.InFileButtonClick(Sender: TObject);
+procedure TForm1.SetPublicNames;
 var
   sname : string;
 begin
-  // OpenDialog.Filter := 'Windows BMP|*.bmp|PNG|*.png|PC Paintbrush |*.pcx|DP-Amiga IFF LBM|*.lbm|DP-Amiga IFF BBM Brush|*.bbm|GIF|*.gif|RM RAW Files|*.raw|All Files|*.*';
-  if OpenDialog.Execute then
-  begin
-    InfoLabel.Caption:='';
-    EditFileName.Text:=OpenDialog.FileName;
-    if ObjModeRadioGroup.ItemIndex = 0 then
+  if ObjModeRadioGroup.ItemIndex = 0 then
     begin
        sname:=UpperCase(ExtractFileName(ExtractFileNameWithoutExt(OpenDialog.FileName)));
        EditPublicName.Text:=sname;
@@ -86,6 +83,16 @@ begin
       EditPublicName.Text:='_'+sname;
       EditPublicSizeName.Text:='_'+sname+'size';
     end;
+end;
+
+procedure TForm1.InFileButtonClick(Sender: TObject);
+begin
+  // OpenDialog.Filter := 'Windows BMP|*.bmp|PNG|*.png|PC Paintbrush |*.pcx|DP-Amiga IFF LBM|*.lbm|DP-Amiga IFF BBM Brush|*.bbm|GIF|*.gif|RM RAW Files|*.raw|All Files|*.*';
+  if OpenDialog.Execute then
+  begin
+    InfoLabel.Caption:='';
+    EditFileName.Text:=OpenDialog.FileName;
+    SetPublicNames;
   end;
 end;
 
@@ -125,6 +132,27 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   Caption:=ProgramName;
+end;
+
+procedure TForm1.FormDropFiles(Sender: TObject; const FileNames: array of String);
+begin
+  if High(Filenames) > 0 then
+  begin
+    ShowMessage('Drag only one file!');
+    exit;
+  end;
+
+  if FileExists(FileNames[0]) then
+  begin
+    OpenDialog.FileName:=FileNames[0];
+    EditFileName.Caption:=FileNames[0];
+    SetPublicNames;
+  end
+  else
+  begin
+    ShowMessage('Invalid File/Directory!');
+    exit;
+  end;
 end;
 
 procedure TForm1.ObjModeRadioGroupClick(Sender: TObject);
