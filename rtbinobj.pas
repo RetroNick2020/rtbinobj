@@ -7,11 +7,11 @@ uses
   {$IFDEF UNIX}{$IFDEF UseCThreads}
   cthreads,
   {$ENDIF}{$ENDIF}
-  Classes, SysUtils, CustApp,
+  Classes, SysUtils, CustAPP,
   objlib,hunklib,bsavelib,cofflib;
 
 Const
-  ProgramName = 'RtBinObj v1.6 - Released May 22 - 2023 By RetroNick';
+  ProgramName = 'RtBinObj v1.7 - Released December 21 - 2023 By RetroNick';
 
   CompTP = 0;
   CompTC = 1;
@@ -20,6 +20,8 @@ Const
   CompAmigaHunk = 4;
   CompBSAVE = 5;
   CompCOFF  = 6;
+  CompTMT   = 7;
+
 type
   { RtBinObj }
 
@@ -43,6 +45,7 @@ begin
                   CompAmigaHunk:result:='Amiga Hunk Mode';
                   CompBSAVE:result:='QuickBasic\GWBASIC BSAVE Mode';
                   CompCOFF:result:='COFF 32bit Mode';
+                  CompTMT:result:='TMT Pascal Obj Mode';
 
   end;
 end;
@@ -89,6 +92,7 @@ begin
                                          'HUNK':CompilerMode:=CompAmigaHunk;
                                          'BSAVE':CompilerMode:=CompBSAVE;
                                          'COFF':CompilerMode:=CompCOFF;
+                                         'TMT':CompilerMode:=CompTMT;
 
   end;
 
@@ -195,7 +199,12 @@ begin
     begin
        error:=CreateCOFF(infile,outfile,publicname,publicsizename,FALSE);
     end;
+  end
+  else if CompilerMode = CompTMT then
+  begin
+    error:=CreateTMTObj(infile,outfile,publicname);
   end;
+
 
   if error = 0 then writeln('Converted Successfully using ',GetCompModeName(CompilerMode)) else writeln('Looks like we have an error# ',error);
 
@@ -220,7 +229,7 @@ begin
   writeln(programname);
   writeln('Usage: RtBinObj infile outfile public_name');
   writeln('  Optional -PS  public size name');
-  writeln('           -O   OBJ Mode {TP,TC,OW16,OW32,HUNK,BSAVE,COFF}');
+  writeln('           -O   OBJ Mode {TP,TC,TMT,OW16,OW32,HUNK,BSAVE,COFF}');
   writeln('           -SN  segment name');
   writeln('           -CN  class name');
   writeln('           -HN  hunk name (Amiga 68k)');

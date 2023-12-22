@@ -39,6 +39,9 @@ procedure Write_PubDefRecords(var F : File; BaseGroupIndex: byte; BaseSegmentInd
 Function CreateTPObj(infile,outfile,publicname : string) : word;
 Function CreateTPObj(infile,outfile,publicname,publicsizename : string) : word;
 
+Function CreateTMTObj(infile,outfile,publicname : string) : word;
+Function CreateTMTObj(infile,outfile,publicname,publicsizename : string) : word;
+
 Function CreateTCObj(infile,outfile,publicname,segname,classname : string;UseFswitch : Boolean) : word;
 Function CreateTCObj(infile,outfile,publicname,publicsizename,segname,classname : string;UseFswitch : Boolean) : word;
 
@@ -489,7 +492,7 @@ begin
   FreeMem(recordPtr, dataLength + 5);
 end;
 
-procedure Write_SegmentData32(var F : File; SegmentIndex: byte; EnumeratedDataOffset: longword; dataBytes : PByte; dataLength: word);
+procedure Write_SegmentData32(var F : File; SegmentIndex: byte; EnumeratedDataOffset: longword; dataBytes : PByte; dataLength: longword);
 begin
   while (dataLength > 1024) do
   begin
@@ -514,6 +517,19 @@ begin
  close(F);
 {$I+}
 end;
+
+function GetFileSize32(filename : string) : longword;
+var
+ F : File;
+begin
+ Assign(F,filename);
+{$I-}
+ Reset(F,1);
+ result:=FileSize(F);
+ close(F);
+{$I+}
+end;
+
 
 Procedure Write_FileContents(var F : File;filename : string;segIdx: byte; dataOffset: word);
 var
@@ -603,6 +619,26 @@ begin
 end;
 
 
+procedure ChangePubDefStr(index : byte;var data; PublicName : string; PublicOffset : word; typeindex : byte);
+var
+ DataA : array[1..255] of TPubDefStrRec absolute data;
+begin
+  dataA[index].StringLength:=length(publicname);
+  dataA[index].PubLicName:=publicname;
+  dataA[index].PublicOffset:=publicoffset;
+  dataA[index].TypeIndex:=typeindex;
+end;
+
+procedure ChangePubDefStr32(index : byte;var data; PublicName : string; PublicOffset : longword; typeindex : byte);
+var
+ DataA : array[1..255] of TPubDefStrRec32 absolute data;
+begin
+  dataA[index].StringLength:=length(publicname);
+  dataA[index].PubLicName:=publicname;
+  dataA[index].PublicOffset:=publicoffset;
+  dataA[index].TypeIndex:=typeindex;
+end;
+
 
 // create Turbo Pascal Compatile BINOBJ output exactly to the byte level
 Function CreateTPObj(infile,outfile,publicname : string) : word;
@@ -625,25 +661,6 @@ begin
  result:=IORESULT;
 end;
 
-procedure ChangePubDefStr(index : byte;var data; PublicName : string; PublicOffset : word; typeindex : byte);
-var
- DataA : array[1..255] of TPubDefStrRec absolute data;
-begin
-  dataA[index].StringLength:=length(publicname);
-  dataA[index].PubLicName:=publicname;
-  dataA[index].PublicOffset:=publicoffset;
-  dataA[index].TypeIndex:=typeindex;
-end;
-
-procedure ChangePubDefStr32(index : byte;var data; PublicName : string; PublicOffset : longword; typeindex : byte);
-var
- DataA : array[1..255] of TPubDefStrRec32 absolute data;
-begin
-  dataA[index].StringLength:=length(publicname);
-  dataA[index].PubLicName:=publicname;
-  dataA[index].PublicOffset:=publicoffset;
-  dataA[index].TypeIndex:=typeindex;
-end;
 
 Function CreateTPObj(infile,outfile,publicname,publicsizename : string) : word;
 var
@@ -669,6 +686,60 @@ begin
 {$I+}
  result:=IORESULT;
 end;
+
+
+
+
+Function CreateTMTObj(infile,outfile,publicname : string) : word;
+var
+ size : longword;
+ F    : File;
+begin
+ size:=GetFileSize32(infile);
+{$I-}
+ assign(F,outfile);
+ rewrite(F,1);
+ Write_THeadr(F,#$3a#$3a);
+ Write_LNames(F,'#CODE##');
+ Write_SegDef32(F,$28,size,2,1,1);
+ Write_PubDef(F,0,1,publicname,0,0);
+ Write_FileContents32(F,infile,1,0);
+ Write_ModEnd(F);
+ close(F);
+{$I+}
+ result:=IORESULT;
+end;
+
+
+//public size name will not work TMT Pascal. we can only store 2 bytes for size instead of 4
+//tmt compiler would need to understand option 91h
+Function CreateTMTObj(infile,outfile,publicname,publicsizename : string) : word;
+var
+ size : longword;
+ F    : File;
+ data : array[1..2] of TPubDefStrRec;
+begin
+ size:=GetFileSize32(infile);
+{$I-}
+ assign(F,outfile);
+ rewrite(F,1);
+ Write_THeadr(F,#$3a#$3a);
+ Write_LNames(F,'#CODE##');
+ Write_SegDef32(F,$28,size+4,2,1,1);  //+4 is the addtional bytes we will need to include the size information
+
+ ChangePubDefStr(1,data,publicname,0,0);
+ ChangePubDefStr(2,data,publicsizename,size,0); // <---we are doomed here
+ Write_PubDefRecords(F,0,1,data,2);
+
+ Write_FileContentsAndSize32(F,infile,1,0);
+ Write_ModEnd(F);
+ close(F);
+{$I+}
+ result:=IORESULT;
+end;
+
+
+
 
 // Turbo C's BGIOBJ /F switch inserts another LName that is the same as the public name
 // eg default is _TEXT CODE, if public name is _IMAGE, LName section becomes IMAGE_TEXT CODE

@@ -9,7 +9,7 @@ uses
   LazFileUtils, objlib,hunklib,bsavelib,cofflib;
 
 Const
-  ProgramName = 'RtBinObj v1.6 By RetroNick - Released May 22 - 2023';
+  ProgramName = 'RtBinObj v1.7 By RetroNick - Released December 21 - 2023';
 
 type
 
@@ -46,6 +46,9 @@ type
     function ValidFields : boolean;
     procedure SetPublicNames;
     procedure CreateTPOBJFile;
+
+    procedure CreateTMTOBJFile;
+
     procedure CreateTCOBJFile;
     procedure CreateOBJFile;
     procedure CreateOWDOS32OBJFile;
@@ -241,7 +244,19 @@ begin
       AmigaMemRadioGroup.Enabled:=false;
       FarCallCheckbox.Enabled:=false;
       FarCallCheckbox.Checked:=false;
-    end;
+    end
+  else if ObjModeRadioGroup.ItemIndex = 7 then
+     begin
+       EditPublicName.Enabled:=true;
+       EditPublicSizeName.Enabled:=false;
+       EditSegmentName.Enabled:=false;
+       EditClassName.Enabled:=false;
+       SegmentNameLabel.Caption:='Segment Name';
+
+       AmigaMemRadioGroup.Enabled:=false;
+       FarCallCheckbox.Enabled:=false;
+       FarCallCheckbox.Checked:=false;
+     end;
 end;
 
 procedure TForm1.SaveAsButtonClick(Sender: TObject);
@@ -278,6 +293,26 @@ begin
      error:=CreateTPObj(OpenDialog.Filename,SaveDialog.FileName,EditPublicName.Text,EditPublicSizeName.Text)
    else
      error:=CreateTPObj(OpenDialog.Filename,SaveDialog.FileName,EditPublicName.Text);
+
+  if error=0 then
+  begin
+    InfoLabel.Caption:='New Obj successfully created and saved!';
+  end
+  else
+  begin
+    InfoLabel.Caption:='Ouch it looks like we had booboo #'+IntToStr(error);
+  end;
+end;
+
+procedure TForm1.CreateTMTOBJFile;
+var
+  error : word;
+begin
+  InfoLabel.Caption:='We are In correct area';
+  if EditPublicSizeName.Text<>'' then
+     error:=CreateTMTObj(OpenDialog.Filename,SaveDialog.FileName,EditPublicName.Text,EditPublicSizeName.Text)
+   else
+     error:=CreateTMTObj(OpenDialog.Filename,SaveDialog.FileName,EditPublicName.Text);
 
   if error=0 then
   begin
@@ -414,6 +449,7 @@ begin
                                       4:CreateAmigaHunkFile;
                                       5:CreateBSaveFile;
                                       6:CreateCOFFFile;
+                                      7:CreateTMTObjFile;
 
   end;
 end;

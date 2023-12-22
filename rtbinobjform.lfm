@@ -1,11 +1,11 @@
 object Form1: TForm1
   Left = 491
-  Height = 431
+  Height = 459
   Top = 358
   Width = 746
   AllowDropFiles = True
   BorderIcons = [biSystemMenu, biMinimize]
-  ClientHeight = 431
+  ClientHeight = 459
   ClientWidth = 746
   Color = clForm
   OnCreate = FormCreate
@@ -68,7 +68,7 @@ object Form1: TForm1
   object SaveAsButton: TButton
     Left = 640
     Height = 25
-    Top = 376
+    Top = 408
     Width = 75
     Caption = 'Save As'
     OnClick = SaveAsButtonClick
@@ -129,7 +129,7 @@ object Form1: TForm1
   end
   object ObjModeRadioGroup: TRadioGroup
     Left = 491
-    Height = 177
+    Height = 200
     Hint = 'Turbo Pascal Mode  compatible with QuickPascal and FreePascal 8086'#13#10'Turbo C Mode compatible QuickC'
     Top = 64
     Width = 224
@@ -142,7 +142,7 @@ object Form1: TForm1
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 1
-    ClientHeight = 157
+    ClientHeight = 180
     ClientWidth = 220
     ItemIndex = 0
     Items.Strings = (
@@ -153,6 +153,7 @@ object Form1: TForm1
       'Amiga 68k Hunk (vbcc / freepascal)'
       'QuickBasic/GWBASIC (bsave)'
       'COFF 32 bit'
+      'TMT Pascal OBJ'
     )
     OnClick = ObjModeRadioGroupClick
     ParentShowHint = False
@@ -173,10 +174,10 @@ object Form1: TForm1
     TabOrder = 6
   end
   object AmigaMemRadioGroup: TRadioGroup
-    Left = 491
+    Left = 494
     Height = 96
-    Top = 256
-    Width = 185
+    Top = 280
+    Width = 221
     AutoFill = True
     Caption = 'Amiga Memory Type'
     ChildSizing.LeftRightSpacing = 6
@@ -187,7 +188,7 @@ object Form1: TForm1
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 1
     ClientHeight = 76
-    ClientWidth = 181
+    ClientWidth = 217
     Enabled = False
     ItemIndex = 0
     Items.Strings = (
@@ -199,10 +200,10 @@ object Form1: TForm1
     TabOrder = 8
   end
   object OpenDialog: TOpenDialog
-    Left = 440
+    Left = 640
   end
   object SaveDialog: TSaveDialog
     Options = [ofOverwritePrompt, ofEnableSizing, ofViewDetail]
-    Left = 509
+    Left = 688
   end
 end
