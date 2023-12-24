@@ -9,7 +9,7 @@ uses
   LazFileUtils, objlib,hunklib,bsavelib,cofflib;
 
 Const
-  ProgramName = 'RtBinObj v1.7 By RetroNick - Released December 21 - 2023';
+  ProgramName = 'RtBinObj v1.8 By RetroNick - Released December 24 - 2023';
 
 type
 
@@ -74,11 +74,17 @@ procedure TForm1.SetPublicNames;
 var
   sname : string;
 begin
-  if ObjModeRadioGroup.ItemIndex = 0 then
+    if ObjModeRadioGroup.ItemIndex = 0 then      //TP
     begin
        sname:=UpperCase(ExtractFileName(ExtractFileNameWithoutExt(OpenDialog.FileName)));
        EditPublicName.Text:=sname;
        EditPublicSizeName.Text:=sname+'SIZE';
+    end
+    else if ObjModeRadioGroup.ItemIndex = 7 then      //TMT
+    begin
+       sname:=UpperCase(ExtractFileName(ExtractFileNameWithoutExt(OpenDialog.FileName)));
+       EditPublicName.Text:=sname;
+       EditPublicSizeName.Text:='';
     end
     else
     begin
